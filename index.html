@@ -26,6 +26,7 @@
 
   @keyframes flowdown { to { background-position:0 -15px; } }
   @keyframes floaty { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-5px); } }
+  @keyframes revealUp { from { opacity:0; transform:translateY(28px); } to { opacity:1; transform:none; } }
 
   .wrap { max-width:var(--max); margin:0 auto; }
   .section-pad { padding:clamp(80px,11vw,128px) clamp(22px,5vw,40px); }
@@ -74,7 +75,7 @@
   .step-rail { display:flex; flex-direction:column; align-items:center; }
   .step-num { font-family:'Cormorant Garamond',serif; font-size:16px; font-weight:600; color:var(--bronze); width:36px; height:36px; border:0.5px solid rgba(138,106,68,0.4); border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
   .step-num.last { color:var(--white); background:var(--ink); border:none; font-weight:700; }
-  .step-line { flex:1; width:1px; margin:6px 0; background:repeating-linear-gradient(to bottom,var(--bronze-light) 0 4px,transparent 4px 11px); animation:flowdown 1.6s linear infinite; }
+  .step-line { flex:1; width:1px; margin:6px 0; background:repeating-linear-gradient(to bottom,var(--bronze) 0 5px,transparent 5px 11px); animation:flowdown 1.6s linear infinite; }
   .step-body { padding-bottom:26px; }
   .step-body.last { padding-bottom:0; }
   .step-title { font-family:'Cormorant Garamond',serif; font-size:22px; font-weight:500; color:var(--ink); line-height:1.2; }
@@ -96,8 +97,9 @@
   .sobre-right { flex:1 1 380px; min-width:0; }
   .dores-title { font-size:11px; font-weight:600; letter-spacing:0.14em; text-transform:uppercase; color:var(--stone); margin-bottom:20px; }
   .dores-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:10px; }
-  .dor { background:var(--cream); border:0.5px solid var(--border); border-left:2px solid var(--bronze); border-radius:1px; padding:20px 18px; transition:transform .25s, border-color .25s; }
-  .dor:hover { transform:translateY(-3px); border-left-color:var(--ink); }
+  .dor { background:var(--cream); border:0.5px solid var(--border); border-left:2px solid var(--bronze); border-radius:1px; padding:20px 18px; transition:transform .25s, border-color .25s, border-left-width .25s; }
+  .dor:hover, .dor:active { transform:translateY(-3px); border-left-color:var(--ink); }
+  .dor:active { border-left-width:3px; }
   .dor strong { display:block; font-size:13px; color:var(--ink); line-height:1.45; font-weight:600; margin-bottom:7px; }
   .dor p { font-size:12px; color:var(--stone); line-height:1.65; font-weight:300; }
 
@@ -147,10 +149,10 @@
   .serv-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:18px; }
   .serv-card { border:0.5px solid var(--border); border-radius:1px; padding:38px 30px; display:flex; flex-direction:column; transition:transform .3s, background-size .35s; }
   .serv-card.light { background:var(--white); background-image:linear-gradient(var(--bronze),var(--bronze)); background-repeat:no-repeat; background-position:0 0; background-size:0% 2px; }
-  .serv-card.light:hover { transform:translateY(-5px); background-size:100% 2px; }
+  .serv-card.light:hover, .serv-card.light:active { transform:translateY(-5px); background-size:100% 2px; }
   .serv-card.dark { background:var(--ink); border-color:var(--ink); position:relative; }
   .serv-card.dark::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:var(--bronze-glow); }
-  .serv-card.dark:hover { transform:translateY(-5px); }
+  .serv-card.dark:hover, .serv-card.dark:active { transform:translateY(-5px); }
   .serv-tag { font-size:10px; font-weight:600; letter-spacing:0.16em; text-transform:uppercase; color:var(--bronze); margin-bottom:14px; }
   .serv-card.dark .serv-tag { color:var(--bronze-glow); }
   .serv-nome { font-family:'Cormorant Garamond',serif; font-size:27px; font-weight:500; color:var(--ink); margin-bottom:14px; line-height:1.15; }
@@ -233,6 +235,15 @@
   .reveal { opacity:0; transform:translateY(28px); transition:opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1); }
   .reveal.visible { opacity:1; transform:none; }
   .reveal.d1 { transition-delay:.1s; } .reveal.d2 { transition-delay:.2s; }
+  /* Cascade: stagger children of a revealed grid (backwards fill keeps :hover transforms intact) */
+  .stagger > * { opacity:0; }
+  .stagger.visible > * { opacity:1; animation:revealUp .65s cubic-bezier(.2,.7,.2,1) backwards; }
+  .stagger.visible > *:nth-child(1){ animation-delay:.04s; }
+  .stagger.visible > *:nth-child(2){ animation-delay:.10s; }
+  .stagger.visible > *:nth-child(3){ animation-delay:.16s; }
+  .stagger.visible > *:nth-child(4){ animation-delay:.22s; }
+  .stagger.visible > *:nth-child(5){ animation-delay:.28s; }
+  .stagger.visible > *:nth-child(6){ animation-delay:.34s; }
 
   /* RESPONSIVE */
   @media (max-width:860px) {
@@ -243,8 +254,9 @@
     .dores-grid { grid-template-columns:1fr; }
   }
   @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after { animation-duration:0.001ms !important; animation-iteration-count:1 !important; }
+    *, *::before, *::after { animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; }
     .reveal { opacity:1; transform:none; }
+    .stagger > *, .stagger.visible > * { opacity:1; animation:none; }
     html { scroll-behavior:auto; }
   }
 </style>
@@ -330,9 +342,9 @@
         <div class="dif"><span class="dif-num">03</span><div><h4>Atendimento 100% remoto</h4><p>Atendo escritórios em todo o Brasil com a mesma profundidade e dedicação.</p></div></div>
       </div>
     </div>
-    <div class="sobre-right reveal d1">
-      <p class="dores-title">Problemas que resolvo</p>
-      <div class="dores-grid">
+    <div class="sobre-right">
+      <p class="dores-title reveal">Problemas que resolvo</p>
+      <div class="dores-grid stagger">
         <div class="dor"><strong>CRM desorganizado</strong><p>Leads espalhados sem etapas definidas, tornando impossível saber onde cada contato está.</p></div>
         <div class="dor"><strong>Leads sem follow-up</strong><p>Contatos interessados somem porque não existe uma estratégia de retorno estruturada.</p></div>
         <div class="dor"><strong>Sem linguagem comercial</strong><p>A equipe domina o direito, mas não sabe conduzir uma conversa de vendas até o fechamento.</p></div>
@@ -353,7 +365,7 @@
       <h2>De 54 para 199 contratos.<em>Em um único mês.</em></h2>
       <p>Estudo de caso real com o escritório Diógenes Tenório Advogados, que iniciou a consultoria comercial em janeiro de 2026.</p>
     </div>
-    <div class="res-metrics reveal">
+    <div class="res-metrics stagger">
       <div class="metric"><div class="metric-num" data-count-to="3.7" data-count-dec="1" data-count-suffix="×">3,7×</div><div class="metric-label">Mais contratos em 1 mês vs. trimestre anterior</div></div>
       <div class="metric"><div class="metric-num" data-count-to="199">199</div><div class="metric-label">Contratos assinados no 1º mês de consultoria</div></div>
       <div class="metric"><div class="metric-num">1 mês</div><div class="metric-label">Para superar o resultado de 3 meses sem estrutura</div></div>
@@ -394,8 +406,8 @@
       <div class="hl"><p class="label">Serviços</p><h2 class="stitle">Como posso te ajudar</h2></div>
       <p class="intro">Cada serviço foi desenhado para uma necessidade específica — seja para quem está começando a estruturar o comercial ou para quem quer ir mais fundo na operação.</p>
     </div>
-    <div class="serv-grid">
-      <div class="serv-card light reveal">
+    <div class="serv-grid stagger">
+      <div class="serv-card light">
         <p class="serv-tag">Ponto de entrada</p>
         <h3 class="serv-nome">Auditoria Comercial</h3>
         <p class="serv-desc">Análise completa do seu processo comercial atual — WhatsApp, CRM, fluxo, scripts e funil — para identificar exatamente onde estão os gargalos.</p>
@@ -403,7 +415,7 @@
         <ul class="serv-list"><li>Análise do WhatsApp comercial</li><li>Mapeamento do funil atual</li><li>Avaliação dos scripts e abordagens</li><li>Relatório com recomendações</li></ul>
         <a href="#" class="serv-link" data-wa="auditoria" target="_blank">Solicitar auditoria →</a>
       </div>
-      <div class="serv-card dark reveal d1">
+      <div class="serv-card dark">
         <p class="serv-tag">Serviço principal</p>
         <h3 class="serv-nome">Consultoria Comercial</h3>
         <p class="serv-desc">Acompanhamento completo do seu escritório por 60 ou 90 dias: da auditoria à implementação e otimização contínua do processo comercial.</p>
@@ -411,7 +423,7 @@
         <ul class="serv-list"><li>Diagnóstico e auditoria inicial</li><li>Estruturação do fluxo de atendimento</li><li>Organização do CRM de leads</li><li>Scripts e padronização de comunicação</li><li>Estratégia de follow-up</li><li>Treinamento e acompanhamento da equipe</li></ul>
         <a href="#" class="serv-link solid" data-wa="consultoria" target="_blank">Quero começar →</a>
       </div>
-      <div class="serv-card light reveal d2">
+      <div class="serv-card light">
         <span class="badge-breve">Em breve</span>
         <h3 class="serv-nome">Curso Comercial Jurídico</h3>
         <p class="serv-desc">Um método completo em formato de curso para advogados e equipes que querem estruturar o comercial com autonomia e escala.</p>
@@ -437,22 +449,22 @@
       <p class="label">Depoimentos</p>
       <h2 class="stitle">Quem já estruturou o comercial com a Aline</h2>
     </div>
-    <div class="depo-grid">
-      <div class="depo reveal">
+    <div class="depo-grid stagger">
+      <div class="depo">
         <span class="depo-badge">Consultoria 60 dias</span>
         <div class="depo-mark">"</div>
         <p class="depo-text">A Aline não entrega teoria. Ela entra no dia a dia do escritório, identifica o que trava o atendimento e monta um processo que a equipe realmente segue. Em menos de 30 dias já víamos a diferença nos contratos.</p>
         <div class="depo-author"><div class="depo-avatar">DT</div><div><p class="depo-name">Dr. Diógenes Tenório</p><p class="depo-role">Diógenes Tenório Advogados · Alagoas</p></div></div>
         <div class="depo-result">↑ 3,7× contratos no 1º mês de consultoria</div>
       </div>
-      <div class="depo reveal d1">
+      <div class="depo">
         <span class="depo-badge">Consultoria 90 dias</span>
         <div class="depo-mark">"</div>
         <p class="depo-text">Antes, cada pessoa da equipe atendia de um jeito. Hoje temos scripts, etiquetas e um fluxo claro do primeiro contato ao fechamento. O WhatsApp virou uma ferramenta comercial de verdade.</p>
         <div class="depo-author"><div class="depo-avatar">MC</div><div><p class="depo-name">Dra. Marina Câmara</p><p class="depo-role">Câmara Advocacia Previdenciária · SP</p></div></div>
         <div class="depo-result">↑ Processo comercial padronizado em 90 dias</div>
       </div>
-      <div class="depo reveal d2">
+      <div class="depo">
         <span class="depo-badge">Auditoria + Consultoria</span>
         <div class="depo-mark">"</div>
         <p class="depo-text">Gastava com tráfego e os leads chegavam, mas a conversão era baixa. A auditoria mostrou onde estava o problema: no atendimento, não no anúncio. Com o processo estruturado, o retorno sobre a mídia mudou completamente.</p>
@@ -478,9 +490,9 @@
         <a href="https://instagram.com/alinecalaca" class="canal" target="_blank">
           <span class="canal-icon"><svg width="18" height="18" fill="none" stroke="#FDFAF6" stroke-width="1.5" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="#FDFAF6"/></svg></span>
           Instagram — @alinecalaca</a>
-        <a href="/cdn-cgi/l/email-protection#63000c0d1702170c23020f0a0d0600020f0200024d000c0e4d0111" class="canal">
+        <a href="/cdn-cgi/l/email-protection#f99a96978d988d96b9989590979c9a9895989a98d79a9694d79b8b" class="canal">
           <span class="canal-icon"><svg width="18" height="18" fill="none" stroke="#FDFAF6" stroke-width="1.5" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg></span>
-          <span class="__cf_email__" data-cfemail="9bf8f4f5effaeff4dbfaf7f2f5fef8faf7faf8fab5f8f4f6b5f9e9">[email&#160;protected]</span></a>
+          <span class="__cf_email__" data-cfemail="3b5854554f5a4f547b5a5752555e585a575a585a15585456155949">[email&#160;protected]</span></a>
       </div>
     </div>
     <div class="contato-right reveal d1">
@@ -522,11 +534,11 @@
     a.href = 'https://wa.me/' + WA_NUMBER + '?text=' + encodeURIComponent(WA_MSGS[key] || WA_MSGS.general);
   });
 
-  // ── Scroll reveal ──
+  // ── Scroll reveal + cascade ──
   var revObs = new IntersectionObserver(function(entries){
     entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('visible'); revObs.unobserve(e.target); } });
   }, { threshold:0.12, rootMargin:'0px 0px -7% 0px' });
-  document.querySelectorAll('.reveal').forEach(function(el){ revObs.observe(el); });
+  document.querySelectorAll('.reveal, .stagger').forEach(function(el){ revObs.observe(el); });
 
   // ── Count-up ──
   function fmtCount(el, v){
@@ -552,7 +564,7 @@
       }
       requestAnimationFrame(tick);
     });
-  }, { threshold:0.5 });
+  }, { threshold:0.35 });
   counters.forEach(function(el){ cntObs.observe(el); });
 
   // ── Nav active highlight ──
@@ -585,6 +597,13 @@
     msg.classList.add('show');
     if(ok) input.value = '';
   }
+
+  // ── Pausa o pulso do WhatsApp após o 1º scroll (chama atenção na entrada, depois descansa) ──
+  var waFloat = document.querySelector('.wa-float');
+  window.addEventListener('scroll', function onFirstScroll(){
+    if(waFloat) waFloat.style.animation = 'none';
+    window.removeEventListener('scroll', onFirstScroll);
+  }, { passive:true, once:true });
 </script>
 </body>
 </html>
